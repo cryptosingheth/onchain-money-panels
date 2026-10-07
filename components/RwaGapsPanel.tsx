@@ -129,11 +129,10 @@ export async function RwaGapsPanel() {
             {issuers.map((c, i) => (
               <div className="ctable-row" key={c.id}>
                 <span className="soc-add-g-rank lb-rank mono">{String(i + 1).padStart(2, '0')}</span>
-                <span className="soc-add-g-name ct-name">
-                  {c.label}
-                  <span className="lb-ticker mono">{c.id}</span>
+                <span className="soc-add-g-name ct-name">{c.label}</span>
+                <span className="soc-add-g-what soc-add-chains">
+                  {c.note} <span className="mono soc-add-sub">CoinGecko id: {c.id}</span>
                 </span>
-                <span className="soc-add-g-what soc-add-chains">{c.note}</span>
                 <span className="soc-add-g-value num ct-tvl mono">
                   {formatUsd(c.marketCapUsd, autoDigits(c.marketCapUsd))}
                 </span>

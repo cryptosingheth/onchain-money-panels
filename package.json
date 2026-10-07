@@ -1,0 +1,27 @@
+{
+  "name": "onchain-money-panels",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Drop-in dashboard panels: Canadian-dollar stablecoins, trading vs on-chain use, AI-agent payments, and tokenized assets.",
+  "license": "MIT",
+  "author": "Opinder Preet Singh",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "geist": "1.7.2",
+    "next": "14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "recharts": "2.15.4"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7",
+    "typescript": "5.9.3"
+  }
+}

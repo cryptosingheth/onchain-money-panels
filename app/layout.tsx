@@ -7,7 +7,7 @@ import '../styles/additions.css';
 
 export const metadata: Metadata = {
   title: 'On-chain Money Panels',
-  description: 'Drop-in dashboard panels on Canadian-dollar stablecoins, real stablecoin use, AI-agent payments, tokenized assets and stock perps. By Opinder Preet Singh.',
+  description: 'Drop-in dashboard panels on Canadian-dollar stablecoins, real stablecoin use, AI-agent payments and tokenized assets. By Opinder Preet Singh.',
 };
 
 export const viewport: Viewport = {

@@ -57,26 +57,6 @@ async function getNumber(url: string): Promise<number | null> {
   }
 }
 
-/** Market cap of one CoinGecko category (free, no key). */
-export async function getGeckoCategoryMarketCap(id: string): Promise<number | null> {
-  const cats = await getCategories();
-  const cap = cats?.find((c) => c.id === id)?.market_cap;
-  return typeof cap === 'number' && cap > 0 ? cap : null;
-}
-
-async function getCategories(): Promise<Array<{ id: string; market_cap: number | null }> | null> {
-  try {
-    const res = await fetch('https://api.coingecko.com/api/v3/coins/categories', {
-      next: { revalidate: REVALIDATE_SECONDS },
-      headers: { accept: 'application/json' },
-    });
-    if (!res.ok) return null;
-    return (await res.json()) as Array<{ id: string; market_cap: number | null }>;
-  } catch {
-    return null;
-  }
-}
-
 async function getCollectibles(): Promise<CollectiblesData | null> {
   try {
     const res = await fetch(

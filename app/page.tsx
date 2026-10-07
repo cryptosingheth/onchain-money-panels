@@ -2,7 +2,6 @@ import { AgentPaymentsPanel } from '../components/AgentPaymentsPanel';
 import { CadStablecoinsPanel } from '../components/CadStablecoinsPanel';
 import { RwaExcludeDemo } from '../components/RwaExcludeDemo';
 import { RwaGapsPanel } from '../components/RwaGapsPanel';
-import { StockPerpsPanel } from '../components/StockPerpsPanel';
 import { TradingVsPaymentsPanel } from '../components/TradingVsPaymentsPanel';
 
 /** Matches the DeFiLlama fetch revalidation in lib/defillama.ts. */
@@ -28,13 +27,12 @@ export default function PreviewPage() {
 
       <main className="container">
         <div className="dash-section">
-          <p className="soc-preview-note">Drop-in panels on Canadian-dollar stablecoins, real stablecoin use, AI-agent payments, tokenized assets and stock perps. Proposed as a contribution to State of Crypto by Opinder Preet Singh.</p>
+          <p className="soc-preview-note">Drop-in panels on Canadian-dollar stablecoins, real stablecoin use, AI-agent payments and tokenized assets. Proposed as a contribution to State of Crypto by Opinder Preet Singh.</p>
           <CadStablecoinsPanel />
           <TradingVsPaymentsPanel />
           <AgentPaymentsPanel />
           <RwaExcludeDemo />
           <RwaGapsPanel />
-          <StockPerpsPanel />
         </div>
       </main>
     </div>

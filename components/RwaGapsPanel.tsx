@@ -1,5 +1,6 @@
+import { TRACKER_UNNAMED as U } from '../data/curated';
 import { getRwaGapsData, REAL_ESTATE_EXCLUDED_NOTE } from '../lib/rwaGaps';
-import { autoDigits, formatUsd } from '../lib/format';
+import { autoDigits, formatDate, formatUsd } from '../lib/format';
 import { Kpi, Panel, SectionHead, Unavailable } from './parts';
 
 const DEFILLAMA = (
@@ -14,20 +15,18 @@ const DEFILLAMA_TCG = (
   </a>
 );
 
-const COINGECKO = (
-  <a className="soc-add-link" href="https://www.coingecko.com/en/categories" target="_blank" rel="noreferrer">
-    CoinGecko categories
+const TRACKER = (
+  <a className="soc-add-link" href={U.sourceUrl} target="_blank" rel="noreferrer">
+    the tracker&apos;s own table
   </a>
 );
 
 /**
  * Tokenized assets the CoinGecko-based RWA tracker misses or leaves unlabelled:
- * real estate (empty in the tracker today), stock issuers with no "Managed by" name, and collectibles.
+ * real estate (empty in the tracker today), tokens with no "Managed by" name, and collectibles.
  */
 export async function RwaGapsPanel() {
   const data = await getRwaGapsData();
-  const issuers = data.categories ?? [];
-  const unlabelledTotal = issuers.reduce((acc, c) => acc + c.marketCapUsd, 0);
   const collectibles = data.collectibles;
 
   return (
@@ -35,37 +34,35 @@ export async function RwaGapsPanel() {
       <SectionHead
         id="rwa-gaps-title"
         title="What the Tokenized Assets Tracker Misses"
-        description="The Real Estate filter is empty, some stock tokens have no issuer name, and collectibles are not tracked yet."
+        description={`The Real Estate filter is empty, ${U.unnamedTokens} tokens have no issuer name, and collectibles are not tracked yet.`}
       />
 
-      {data.realEstate || data.categories ? (
-        <div className="kpi-row">
-          <Kpi
-            label="Tokenized real estate"
-            value={data.realEstateTotalUsd ? formatUsd(data.realEstateTotalUsd) : '—'}
-            source="DeFiLlama · TVL"
-            period={data.realEstate ? `${data.realEstate.length} platforms` : undefined}
-          />
-          <Kpi
-            label="Largest platform"
-            value={data.realEstate?.[0] ? formatUsd(data.realEstate[0].tvlUsd) : '—'}
-            source="DeFiLlama · TVL"
-            period={data.realEstate?.[0]?.name}
-          />
-          <Kpi
-            label="Stocks without an issuer name"
-            value={unlabelledTotal > 0 ? formatUsd(unlabelledTotal) : '—'}
-            source="CoinGecko categories · market cap"
-            period={issuers.length ? `${issuers.length} issuers` : undefined}
-          />
-          <Kpi
-            label="Collectibles traded, 30d"
-            value={collectibles ? formatUsd(collectibles.volume30dUsd) : '—'}
-            source="DeFiLlama · Physical TCG volume"
-            period={collectibles ? `${collectibles.platforms.length} platforms` : undefined}
-          />
-        </div>
-      ) : null}
+      <div className="kpi-row">
+        <Kpi
+          label="Tokenized real estate"
+          value={data.realEstateTotalUsd ? formatUsd(data.realEstateTotalUsd) : '—'}
+          source="DeFiLlama · TVL"
+          period={data.realEstate ? `${data.realEstate.length} platforms` : undefined}
+        />
+        <Kpi
+          label="Largest platform"
+          value={data.realEstate?.[0] ? formatUsd(data.realEstate[0].tvlUsd) : '—'}
+          source="DeFiLlama · TVL"
+          period={data.realEstate?.[0]?.name}
+        />
+        <Kpi
+          label="Tokens without an issuer"
+          value={formatUsd(U.unnamedValueUsd)}
+          source={`${U.unnamedTokens} of ${U.totalTokens} tokens · tracker table`}
+          period={`as of ${formatDate(U.asOf)}`}
+        />
+        <Kpi
+          label="Collectibles traded, 30d"
+          value={collectibles ? formatUsd(collectibles.volume30dUsd) : '—'}
+          source="DeFiLlama · Physical TCG volume"
+          period={collectibles ? `${collectibles.platforms.length} platforms` : undefined}
+        />
+      </div>
 
       <Panel
         id="rwa-real-estate"
@@ -92,9 +89,9 @@ export async function RwaGapsPanel() {
             {data.realEstate.map((r, i) => (
               <div className="ctable-row" key={r.slug}>
                 <span className="soc-add-g-rank lb-rank mono">{String(i + 1).padStart(2, '0')}</span>
-                <span className="soc-add-g-name ct-name">
-                  {r.name}
-                  <span className="lb-ticker mono">{r.chain}</span>
+                <span className="soc-add-g-name soc-add-wrap">
+                  <span className="soc-add-strong">{r.name}</span>
+                  <span className="soc-add-sub mono">{r.chain}</span>
                 </span>
                 <span className="soc-add-g-what soc-add-chains">{r.what}</span>
                 <span className="soc-add-g-value num ct-tvl mono">{formatUsd(r.tvlUsd, autoDigits(r.tvlUsd))}</span>
@@ -108,40 +105,39 @@ export async function RwaGapsPanel() {
 
       <Panel
         id="rwa-unlabelled"
-        title="Stock Issuers Without a Name"
-        caption="CURRENT · MARKET CAP (USD) · COINGECKO CATEGORIES"
+        title="Tokens Without an Issuer Name"
+        caption="TRACKER TABLE · GROUPED BY ISSUER · CURATED"
         notes={
           <p className="panel-note">
-            Many of these tokens appear in the tracker&apos;s table with a blank &quot;Managed by&quot;. CoinGecko groups them by
-            issuer, so the name can be filled from the category id. Market cap covers each issuer&apos;s whole category,
-            stocks and ETFs. Source: {COINGECKO}.
+            {U.unnamedTokens} of the {U.totalTokens} tokens in {TRACKER} show a blank &quot;Managed by&quot;, worth{' '}
+            {formatUsd(U.unnamedValueUsd, 2)}. Most come from a few stock-token issuers, and each token&apos;s CoinGecko id
+            already names the issuer, so the column can be filled automatically. Read {formatDate(U.asOf)}.
           </p>
         }
       >
-        {data.categories ? (
-          <div className="ctable soc-add-ctable-gaps">
-            <div className="ctable-head">
-              <span className="soc-add-g-rank">#</span>
-              <span className="soc-add-g-name">Issuer</span>
-              <span className="soc-add-g-what">Why it matters</span>
-              <span className="soc-add-g-value num">Market cap</span>
-            </div>
-            {issuers.map((c, i) => (
-              <div className="ctable-row" key={c.id}>
-                <span className="soc-add-g-rank lb-rank mono">{String(i + 1).padStart(2, '0')}</span>
-                <span className="soc-add-g-name ct-name">{c.label}</span>
-                <span className="soc-add-g-what soc-add-chains">
-                  {c.note} <span className="mono soc-add-sub">CoinGecko id: {c.id}</span>
-                </span>
-                <span className="soc-add-g-value num ct-tvl mono">
-                  {formatUsd(c.marketCapUsd, autoDigits(c.marketCapUsd))}
-                </span>
-              </div>
-            ))}
+        <div className="ctable soc-add-ctable-issuers">
+          <div className="ctable-head">
+            <span className="soc-add-i-rank">#</span>
+            <span className="soc-add-i-name">Issuer</span>
+            <span className="soc-add-i-how">How to label it</span>
+            <span className="soc-add-i-count num">Tokens</span>
+            <span className="soc-add-i-value num">Value</span>
           </div>
-        ) : (
-          <Unavailable />
-        )}
+          {U.issuers.map((r, i) => (
+            <div className="ctable-row" key={r.label}>
+              <span className="soc-add-i-rank lb-rank mono">{String(i + 1).padStart(2, '0')}</span>
+              <span className="soc-add-i-name soc-add-wrap">
+                <span className="soc-add-strong">{r.label}</span>
+                <span className="soc-add-sub mono">
+                  {r.chain} · {r.examples}
+                </span>
+              </span>
+              <span className="soc-add-i-how soc-add-chains mono">{r.idHint}</span>
+              <span className="soc-add-i-count num mono">{r.tokens}</span>
+              <span className="soc-add-i-value num ct-tvl mono">{formatUsd(r.valueUsd, autoDigits(r.valueUsd))}</span>
+            </div>
+          ))}
+        </div>
       </Panel>
 
       <Panel
@@ -166,7 +162,9 @@ export async function RwaGapsPanel() {
             {collectibles.platforms.slice(0, 5).map((p, i) => (
               <div className="ctable-row" key={p.name}>
                 <span className="soc-add-g-rank lb-rank mono">{String(i + 1).padStart(2, '0')}</span>
-                <span className="soc-add-g-name ct-name">{p.name}</span>
+                <span className="soc-add-g-name soc-add-wrap">
+                  <span className="soc-add-strong">{p.name}</span>
+                </span>
                 <span className="soc-add-g-what soc-add-chains mono">{p.chains.slice(0, 3).join(' · ')}</span>
                 <span className="soc-add-g-value num ct-tvl mono">
                   {formatUsd(p.volume30dUsd, autoDigits(p.volume30dUsd))}

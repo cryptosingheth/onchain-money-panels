@@ -99,3 +99,40 @@
   .ctable.soc-add-ctable-gaps .ctable-head .soc-add-g-what { display: none; }
   .ctable.soc-add-ctable-gaps .ct-name { flex-wrap: wrap; gap: 2px 8px; white-space: normal; }
 }
+
+/* Name cells that may wrap: a bold name with a small mono line under it (no overlap with the next column). */
+.soc-add-wrap { display: flex; flex-direction: column; gap: 2px; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.soc-add-strong { font-weight: 500; color: var(--ink); line-height: 1.3; }
+.ctable.soc-add-ctable-gaps .ctable-row > span,
+.ctable.soc-add-ctable-issuers .ctable-row > span { min-width: 0; }
+
+/* Unnamed-issuer table: rank, issuer, how to label, tokens, value */
+.ctable.soc-add-ctable-issuers .ctable-head,
+.ctable.soc-add-ctable-issuers .ctable-row {
+  min-width: 0;
+  grid-template-columns: 34px minmax(170px, 1.2fr) minmax(200px, 1.6fr) 64px 100px;
+  grid-template-areas: 'rank name how count value';
+  column-gap: 16px;
+  align-items: start;
+}
+.soc-add-i-rank { grid-area: rank; }
+.soc-add-i-name { grid-area: name; }
+.soc-add-i-how { grid-area: how; white-space: normal; line-height: 1.4; overflow-wrap: anywhere; }
+.soc-add-i-count { grid-area: count; text-align: right; }
+.soc-add-i-value { grid-area: value; text-align: right; }
+
+@media (max-width: 680px) {
+  .ctable.soc-add-ctable-issuers .ctable-head,
+  .ctable.soc-add-ctable-issuers .ctable-row {
+    grid-template-columns: 24px minmax(0, 1fr) 44px auto;
+    grid-template-areas:
+      'rank name count value'
+      '. how how how';
+    row-gap: 4px;
+  }
+  .ctable.soc-add-ctable-issuers .ctable-head .soc-add-i-how { display: none; }
+}
+
+/* Gaps tables: align rows to the top and keep a gap between columns. */
+.ctable.soc-add-ctable-gaps .ctable-head,
+.ctable.soc-add-ctable-gaps .ctable-row { column-gap: 16px; align-items: start; }

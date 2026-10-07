@@ -2,8 +2,7 @@
  * Tokenized assets a CoinGecko-only RWA tracker misses or leaves unlabelled.
  *
  * - Real estate: DeFiLlama TVL per protocol (free, no key)  GET https://api.llama.fi/tvl/{slug}
- * - Stock issuers with no "Managed by" name: CoinGecko category market caps (free, no key)
- *   GET https://api.coingecko.com/api/v3/coins/categories
+ * - Tokens with no "Managed by" name: curated snapshot of the tracker's own table (data/curated.ts)
  * - Collectibles: DeFiLlama 30-day trading volume for the "Physical TCG" category (free, no key)
  *   GET https://api.llama.fi/overview/dexs   (volume, not assets held: there is no vault-value feed yet)
  *
@@ -27,48 +26,12 @@ export const REAL_ESTATE_PROTOCOLS = [
 export const REAL_ESTATE_EXCLUDED_NOTE =
   "Left out to avoid double counting or mislabelling: RealT's RMM lending market (loans against RealT tokens), Tangible (mixed real-world assets), Vesta Equity (not updated since Feb 2025) and Parcl (synthetic price exposure, not property). Figure's HELOC token is real-estate-secured credit and already sits under Private Credit.";
 
-/** CoinGecko categories worth showing. */
-export const GECKO_CATEGORIES = [
-  {
-    id: 'bstocks-ecosystem',
-    label: 'bStocks (Binance)',
-    kind: 'Unlabelled issuer',
-    note: 'Tokenized stocks and ETFs issued through Binance on BNB Chain (NVDAB, MSTRB, SPCXB, TSLAB...).',
-  },
-  {
-    id: 'robinhood-chain-stocks-ecosystem',
-    label: 'Robinhood stock tokens',
-    kind: 'Unlabelled issuer',
-    note: 'Robinhood Chain stock and ETF tokens (SPY, NVDA "Robinhood Token").',
-  },
-  {
-    id: 'backpack-securities-ecosystem',
-    label: 'Backpack Securities',
-    kind: 'Unlabelled issuer',
-    note: 'Tokenized stocks and ETFs from Backpack Securities on Solana, launched June 2026 (SPCX, MU, SNDK...). Small supply, heavy trading.',
-  },
-  {
-    id: 'remora-markets-tokenized-rstocks',
-    label: 'rStocks (Remora / Reality)',
-    kind: 'Unlabelled issuer',
-    note: 'Tokenized stocks from Remora Markets (Reality) on Arbitrum (RMSTR, RSPCX...).',
-  },
-] as const;
-
 export interface RealEstateRow {
   slug: string;
   name: string;
   what: string;
   chain: string;
   tvlUsd: number;
-}
-
-export interface CategoryRow {
-  id: string;
-  label: string;
-  kind: string;
-  note: string;
-  marketCapUsd: number;
 }
 
 export interface CollectiblesData {
@@ -80,7 +43,6 @@ export interface RwaGapsData {
   collectibles: CollectiblesData | null;
   realEstate: RealEstateRow[] | null;
   realEstateTotalUsd: number | null;
-  categories: CategoryRow[] | null;
   asOf: number;
 }
 
@@ -93,6 +55,13 @@ async function getNumber(url: string): Promise<number | null> {
   } catch {
     return null;
   }
+}
+
+/** Market cap of one CoinGecko category (free, no key). */
+export async function getGeckoCategoryMarketCap(id: string): Promise<number | null> {
+  const cats = await getCategories();
+  const cap = cats?.find((c) => c.id === id)?.market_cap;
+  return typeof cap === 'number' && cap > 0 ? cap : null;
 }
 
 async function getCategories(): Promise<Array<{ id: string; market_cap: number | null }> | null> {
@@ -130,9 +99,8 @@ async function getCollectibles(): Promise<CollectiblesData | null> {
 }
 
 export async function getRwaGapsData(): Promise<RwaGapsData> {
-  const [tvls, cats, collectibles] = await Promise.all([
+  const [tvls, collectibles] = await Promise.all([
     Promise.all(REAL_ESTATE_PROTOCOLS.map((p) => getNumber(`https://api.llama.fi/tvl/${p.slug}`))),
-    getCategories(),
     getCollectibles(),
   ]);
 
@@ -143,18 +111,10 @@ export async function getRwaGapsData(): Promise<RwaGapsData> {
           .sort((a, b) => b.tvlUsd - a.tvlUsd)
       : null;
 
-  const categories = cats
-    ? GECKO_CATEGORIES.map((c) => ({
-        ...c,
-        marketCapUsd: cats.find((x) => x.id === c.id)?.market_cap ?? 0,
-      })).filter((c) => c.marketCapUsd > 0)
-    : null;
-
   return {
     collectibles,
     realEstate,
     realEstateTotalUsd: realEstate ? realEstate.reduce((acc, r) => acc + r.tvlUsd, 0) : null,
-    categories,
     asOf: Date.now(),
   };
 }

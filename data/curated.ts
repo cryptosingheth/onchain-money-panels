@@ -103,3 +103,76 @@ export const RWA_PUBLISHED = {
     etfs: 0.668e9,
   },
 } as const;
+
+// ---------------------------------------------------------------------------
+// State of Crypto /rwa - tokens listed with a blank "Managed by", grouped by issuer.
+// Read from the page's own token table (784 tokens) on 7 Oct 2026. The issuer can be filled
+// from each token's CoinGecko id, which carries the issuer (e.g. "nvidia-bstocks").
+// ---------------------------------------------------------------------------
+
+export const TRACKER_UNNAMED = {
+  asOf: '2026-10-07',
+  source: 'State of Crypto, Tokenized Assets table',
+  sourceUrl: 'https://stateofcrypto.sanjeevarora.net/rwa',
+  totalTokens: 784,
+  unnamedTokens: 350,
+  unnamedValueUsd: 1253.7e6,
+  issuers: [
+    {
+      label: 'Binance bStocks',
+      chain: 'BNB Chain',
+      tokens: 76,
+      valueUsd: 641.7e6,
+      examples: 'SPCXB, MSTRB, MUB, NVDAB',
+      idHint: 'id ends in "-bstocks" · category bstocks-ecosystem',
+    },
+    {
+      label: 'Robinhood stock tokens',
+      chain: 'Robinhood Chain',
+      tokens: 72,
+      valueUsd: 142.5e6,
+      examples: 'SPY, NVDA, SPCX, GLD',
+      idHint: 'id contains "robinhood" · category robinhood-chain-stocks-ecosystem',
+    },
+    {
+      label: 'Remora / Reality rStocks',
+      chain: 'Arbitrum',
+      tokens: 138,
+      valueUsd: 123.9e6,
+      examples: 'RMSTR, RSPCX, RINTC, RMU',
+      idHint: 'id ends in "-rstock" · category remora-markets-tokenized-rstocks',
+    },
+    {
+      label: 'Coinbase tokenized stocks',
+      chain: 'Base',
+      tokens: 13,
+      valueUsd: 29.0e6,
+      examples: 'NVDAC, METAC, GOOGLC, AAPLC',
+      idHint: 'id ends in "-coinbase-tokenized-stock"',
+    },
+    {
+      label: 'Backpack Securities',
+      chain: 'Solana',
+      tokens: 23,
+      valueUsd: 19.1e6,
+      examples: 'SPCX, SKHY, SNDK, BOT',
+      idHint: 'id ends in "-backpack-securities" · category backpack-securities-ecosystem',
+    },
+    {
+      label: 'Anchored and ST0x',
+      chain: 'various',
+      tokens: 4,
+      valueUsd: 1.2e6,
+      examples: 'ABIL, WTSPYM, WTIAU',
+      idHint: 'id contains "anchored" or "st0x"',
+    },
+    {
+      label: 'Single-token issuers',
+      chain: 'various',
+      tokens: 24,
+      valueUsd: 296.3e6,
+      examples: 'Goldfish Gold, Pleasing Gold, Securitize, Streamex',
+      idHint: 'issuer is in the token name',
+    },
+  ],
+} as const;

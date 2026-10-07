@@ -1,7 +1,7 @@
 # On-chain Money Panels
 
-Drop-in dashboard panels on Canadian-dollar stablecoins, real stablecoin use, AI-agent payments and tokenized
-assets. Built as a proposed contribution to [State of Crypto](https://stateofcrypto.sanjeevarora.net/), and designed
+Drop-in dashboard panels on Canadian-dollar stablecoins, real stablecoin use, AI-agent payments, tokenized assets
+and stock perps. Built as a proposed contribution to [State of Crypto](https://stateofcrypto.sanjeevarora.net/), and designed
 to drop into it with minimal effort.
 
 **Live preview:** https://cryptosingheth.github.io/onchain-money-panels/ (rebuilt daily, so the live data stays current)
@@ -40,11 +40,18 @@ micro".
 shares with chosen assets set aside, plus a static Include/Exclude Figure HELOC demo. Why: Figure's HELOC token is
 over half of on-chain tokenized AUM, so it decides most of the headline shares.
 
-**5. What the tokenized-assets tracker misses** (`components/RwaGapsPanel.tsx`, live)
-Tokenized real estate by platform (DeFiLlama TVL), stock tokens whose issuer is not named (CoinGecko categories:
-Binance bStocks, Robinhood, Remora rStocks, Backpack Securities), and tokenized collectibles (DeFiLlama 30-day volume). Why: a
-CoinGecko-only RWA tracker shows an empty Real Estate bucket, because property tokens are issued one per building
-and are rarely listed.
+**5. What the tokenized-assets tracker misses** (`components/RwaGapsPanel.tsx`)
+Tokenized real estate by platform (live, DeFiLlama TVL); the 350 of 784 tracker tokens with a blank "Managed by",
+grouped by issuer: Binance bStocks, Robinhood, Remora rStocks, Coinbase, Backpack Securities and others (curated
+from the tracker's own table, 7 Oct 2026); and tokenized collectibles (live, DeFiLlama 30-day volume). Why: a
+CoinGecko-only RWA tracker shows an empty Real Estate bucket, because property tokens are issued one per building,
+and each unnamed token's CoinGecko id already carries its issuer.
+
+**6. Stock exposure: tokens vs perps** (`components/StockPerpsPanel.tsx` + `lib/hyperliquid.ts`, live)
+Tokenized stock market cap (CoinGecko `tokenized-stock`) next to stock-perp open interest on Hyperliquid's HIP-3
+markets, plus the largest stock perp markets. Why: perps are synthetic contracts with no tokens behind them, so
+they never belong in tokenized AUM, yet on Hyperliquid alone they already carry more open interest than all
+tokenized stocks are worth.
 
 ## Data endpoints
 
@@ -56,12 +63,15 @@ and are rarely listed.
 | Agent payments | Curated: https://visaonchainanalytics.com/agentic-payments and https://www.visa.com/en-us/thought-leadership/innovation/agentic-payments-from-the-ground-up | n/a | static |
 | RWA demo | Curated: published totals from https://stateofcrypto.sanjeevarora.net/rwa | n/a | static |
 | Tracker gaps: real estate | `GET https://api.llama.fi/tvl/{slug}` for realt-tokens, lofty, estate-protocol, binaryx-platform, propbase, realtyx, landshare | none | `revalidate: 3600` |
-| Tracker gaps: issuers | `GET https://api.coingecko.com/api/v3/coins/categories` (ids bstocks-ecosystem, robinhood-chain-stocks-ecosystem, backpack-securities-ecosystem, remora-markets-tokenized-rstocks) | none | `revalidate: 3600` |
+| Tracker gaps: unnamed issuers | Curated: the tracker's own token table, grouped by the issuer in each CoinGecko id (`data/curated.ts`, `TRACKER_UNNAMED`) | n/a | static |
+| Stock perps | `POST https://api.hyperliquid.xyz/info` `{"type":"perpDexs"}`, then `{"type":"metaAndAssetCtxs","dex":<name>}` per HIP-3 DEX; notional = openInterest x markPx | none | `revalidate: 3600` |
+| Tokenized stocks | `GET https://api.coingecko.com/api/v3/coins/categories` (id `tokenized-stock`) | none | `revalidate: 3600` |
 | Tracker gaps: collectibles | `GET https://api.llama.fi/overview/dexs` filtered to `category === "Physical TCG"`, `total30d` | none | `revalidate: 3600` |
 
-Stock perpetuals (for example Hyperliquid's HIP-3 markets) are left out on purpose: they are synthetic contracts
-with no tokens or shares behind them, so they belong in a separate "exposure" metric (open interest), not in
-tokenized AUM.
+Stock perpetuals are kept out of tokenized AUM on purpose (synthetic contracts, nothing tokenized behind them) and
+shown in their own panel as open interest. Only Hyperliquid HIP-3 markets are counted; markets are bucketed by
+symbol (commodities, FX and rates listed in `lib/hyperliquid.ts`; everything else counts as stocks, indices and
+pre-IPO names).
 
 Not used on purpose: CoinGecko's `real-estate` category (it holds platform and governance tokens, not property
 value) and its `trading-card-rwa-platform` category (mostly one platform token, not card value).

@@ -42,6 +42,12 @@ export const GECKO_CATEGORIES = [
     note: 'Robinhood Chain stock and ETF tokens (SPY, NVDA "Robinhood Token").',
   },
   {
+    id: 'backpack-securities-ecosystem',
+    label: 'Backpack Securities',
+    kind: 'Unlabelled issuer',
+    note: 'Tokenized stocks and ETFs from Backpack Securities on Solana, launched June 2026 (SPCX, MU, SNDK...). Small supply, heavy trading.',
+  },
+  {
     id: 'remora-markets-tokenized-rstocks',
     label: 'rStocks (Remora / Reality)',
     kind: 'Unlabelled issuer',

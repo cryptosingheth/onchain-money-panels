@@ -42,7 +42,7 @@ over half of on-chain tokenized AUM, so it decides most of the headline shares.
 
 **5. What the tokenized-assets tracker misses** (`components/RwaGapsPanel.tsx`, live)
 Tokenized real estate by platform (DeFiLlama TVL), stock tokens whose issuer is not named (CoinGecko categories:
-Binance bStocks, Robinhood, Remora rStocks), and tokenized collectibles (DeFiLlama 30-day volume). Why: a
+Binance bStocks, Robinhood, Remora rStocks, Backpack Securities), and tokenized collectibles (DeFiLlama 30-day volume). Why: a
 CoinGecko-only RWA tracker shows an empty Real Estate bucket, because property tokens are issued one per building
 and are rarely listed.
 
@@ -56,8 +56,12 @@ and are rarely listed.
 | Agent payments | Curated: https://visaonchainanalytics.com/agentic-payments and https://www.visa.com/en-us/thought-leadership/innovation/agentic-payments-from-the-ground-up | n/a | static |
 | RWA demo | Curated: published totals from https://stateofcrypto.sanjeevarora.net/rwa | n/a | static |
 | Tracker gaps: real estate | `GET https://api.llama.fi/tvl/{slug}` for realt-tokens, lofty, estate-protocol, binaryx-platform, propbase, realtyx, landshare | none | `revalidate: 3600` |
-| Tracker gaps: issuers | `GET https://api.coingecko.com/api/v3/coins/categories` (ids bstocks-ecosystem, robinhood-chain-stocks-ecosystem, remora-markets-tokenized-rstocks) | none | `revalidate: 3600` |
+| Tracker gaps: issuers | `GET https://api.coingecko.com/api/v3/coins/categories` (ids bstocks-ecosystem, robinhood-chain-stocks-ecosystem, backpack-securities-ecosystem, remora-markets-tokenized-rstocks) | none | `revalidate: 3600` |
 | Tracker gaps: collectibles | `GET https://api.llama.fi/overview/dexs` filtered to `category === "Physical TCG"`, `total30d` | none | `revalidate: 3600` |
+
+Stock perpetuals (for example Hyperliquid's HIP-3 markets) are left out on purpose: they are synthetic contracts
+with no tokens or shares behind them, so they belong in a separate "exposure" metric (open interest), not in
+tokenized AUM.
 
 Not used on purpose: CoinGecko's `real-estate` category (it holds platform and governance tokens, not property
 value) and its `trading-card-rwa-platform` category (mostly one platform token, not card value).
